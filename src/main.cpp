@@ -2,6 +2,7 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "lemlib/chassis/trackingWheel.hpp"
 #include "pros/abstract_motor.hpp"
+#include "pros/adi.h"
 #include "pros/adi.hpp"
 #include "pros/misc.h"
 #include "pros/motor_group.hpp"
@@ -30,7 +31,9 @@ lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_275, -2.5);
 
 pros::MotorGroup intake({12,-13}, pros::MotorGearset::green);
 pros::Motor outtake(11,pros::MotorGearset::green);
-
+pros::adi::Pneumatics MatchLoad1('A',false);
+pros::adi::Pneumatics MatchLoad2('B',false);
+pros::adi::Pneumatics Wing('C', false);
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               &rightMotors, // right motor group
@@ -174,8 +177,12 @@ void autonomous() {
 void opcontrol() {
     // controller
     // loop to continuously update motors
+    bool matchloadjustpressed = false;
+    bool wingjustpressed = false;
+    //checks if r was just pressed
     while (true) {
         // get joystick positions
+        
         int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         // move the chassis with curvature drive
@@ -185,6 +192,20 @@ void opcontrol() {
         intake.move(127 * (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)));
         outtake.move(127 * (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1) - controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)));
 
+        //Pistons
+        bool RightPressed = controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT);
+        if (RightPressed && !matchloadjustpressed) {
+            // since lemlib doesnt have built in edge detection, we use this so that the toggle only runs once per instance, we do the same with the wing
+            MatchLoad1.toggle();
+            MatchLoad2.toggle();
+        }
+
+        bool YPressed = controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
+        if (YPressed && !wingjustpressed) {
+            Wing.toggle();
+        }
+        
+        
 
     }
 }
