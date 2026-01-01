@@ -1,5 +1,11 @@
 #include "main.h"
 #include "globals.hpp"
+#include "lemlib/auton_selector.hpp"
+
+// Forward declarations for autonomous routines
+void auton_example1();
+void auton_example2();
+void auton_example3();
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -18,6 +24,14 @@ void initialize() {
 
     // for more information on how the formatting for the loggers
     // works, refer to the fmtlib docs
+
+    // Initialize the autonomous selector
+    lemlib::AutonSelector::initialize();
+
+    // Add autonomous routines to the selector
+    lemlib::AutonSelector::addRoutine("Routine 1", auton_example1);
+    lemlib::AutonSelector::addRoutine("Routine 2", auton_example2);
+    lemlib::AutonSelector::addRoutine("Routine 3", auton_example3);
 
     // thread to for brain screen and position logging
     pros::Task screenTask([&]() {
@@ -54,6 +68,15 @@ ASSET(example_txt); // '.' replaced with "_" to make c++ happy
  * This is an example autonomous routine which demonstrates a lot of the features LemLib has to offer
  */
 void autonomous() {
+    // Get and execute the selected autonomous routine
+    auto selectedRoutine = lemlib::AutonSelector::getSelectedRoutine();
+    selectedRoutine();
+}
+
+/**
+ * Example autonomous routine 1
+ */
+void auton_example1() {
     // Move to x: 20 and y: 15, and face heading 90. Timeout set to 4000 ms
     chassis.moveToPose(20, 15, 90, 4000);
     // Move to x: 0 and y: 0 and face heading 270, going backwards. Timeout set to 4000ms
@@ -68,18 +91,29 @@ void autonomous() {
     // will always be faster than 100 (out of a maximum of 127)
     // also force it to turn clockwise, the long way around
     chassis.turnToHeading(90, 1000, {.direction = AngularDirection::CW_CLOCKWISE, .minSpeed = 100});
+}
+
+/**
+ * Example autonomous routine 2
+ */
+void auton_example2() {
     // Follow the path in path.txt. Lookahead at 15, Timeout set to 4000
     // following the path with the back of the robot (forwards = false)
-    // see line 116 to see how to define a path
     chassis.follow(example_txt, 15, 4000, false);
     // wait until the chassis has traveled 10 inches. Otherwise the code directly after
     // the movement will run immediately
-    // Unless its another movement, in which case it will wait
     chassis.waitUntil(10);
-    pros::lcd::print(4, "Traveled 10 inches during pure pursuit!");
     // wait until the movement is done
     chassis.waitUntilDone();
-    pros::lcd::print(4, "pure pursuit finished!");
+}
+
+/**
+ * Example autonomous routine 3
+ */
+void auton_example3() {
+    // Simple forward and back movement
+    chassis.moveToPose(30, 0, 0, 2000);
+    chassis.moveToPose(0, 0, 0, 2000, {.forwards = false});
 }
 
 /**
