@@ -144,13 +144,12 @@ void opcontrol() {
             MatchLoad1.toggle();
             MatchLoad2.toggle();
         }
+        matchloadjustpressed = RightPressed;
 
         bool YPressed = controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
         if (YPressed && !wingjustpressed) {
             Wing.toggle();
         }
-        
-        
-
+        wingjustpressed = YPressed;
     }
 }
