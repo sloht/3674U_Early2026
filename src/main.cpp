@@ -94,10 +94,10 @@ void opcontrol() {
     while (true) {
         // get joystick positions
         
-        int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y); 
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         // move the chassis with curvature drive
-        chassis.arcade(-leftY, -rightX);
+        chassis.arcade(-leftY, -rightX); 
         // delay to save resources
         pros::delay(10);
         intake.move(127 * (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)));
@@ -110,13 +110,14 @@ void opcontrol() {
             MatchLoad1.toggle();
             MatchLoad2.toggle();
         }
+        matchloadjustpressed = RightPressed;
 
         bool YPressed = controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
         if (YPressed && !wingjustpressed) {
             Wing.toggle();
         }
+        wingjustpressed = YPressed;
         
         
-
     }
 }
